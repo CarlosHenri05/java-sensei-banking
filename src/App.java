@@ -1,14 +1,15 @@
 import model.ContaCorrente;
 import model.ContaPoupanca;
 import service.ClienteService;
+import service.ContaService;
 import model.Cliente;
 import model.Conta;
 import java.util.Scanner;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        ContaPoupanca contaPoupanca = null;
-        ContaCorrente contaCorrente = null;
+        Conta c1;
+        Conta c2;
 
         Scanner scanner = new Scanner(System.in);
 
@@ -21,35 +22,18 @@ public class App {
         String email = scanner.nextLine();
 
         Cliente cliente = ClienteService.criarCliente(nome, cpf, email);
+
+        System.out.println("Qual seu saldo?");
+        double saldo = scanner.nextDouble();
+        scanner.nextLine(); // Limpar o buffer do scanner
+        System.out.println("Qual seu ID?");
+        int ID = scanner.nextInt();
         
         System.out.println("Deseja uma conta corrente ou poupança? (c/p)");
         String tipoConta = scanner.nextLine().toLowerCase();
 
-        if (tipoConta.equals("c")){
-            System.out.print("Digite o saldo inicial: ");
-            double saldo = scanner.nextDouble();
-            System.out.print("Digite o ID da conta: ");
-            int id = scanner.nextInt();
-            System.out.print("Digite a agência: ");
-            String agencia = scanner.next();
-            System.out.print("Digite o limite: ");
-            double limite = scanner.nextDouble();
 
-            contaCorrente = new ContaCorrente(saldo, id, agencia, limite);
-
-        } else if (tipoConta.equals("p")) {
-            System.out.print("Digite o saldo inicial: ");
-            double saldo = scanner.nextDouble();
-            System.out.print("Digite o ID da conta: ");
-            int id = scanner.nextInt();
-            System.out.print("Digite a agência: ");
-            String agencia = scanner.next();
-
-            contaPoupanca = new ContaPoupanca(saldo, id, agencia);
-           
-        } else {
-            System.out.println("Tipo de conta inválido.");
-        }
+        Conta conta = tipoConta.equals("c") ? ContaService.criarContaCorrente(saldo, ID, "1234", 1000) : ContaService.criarContaPoupanca(saldo, ID, "01/01/2023");
 
         System.out.println("O que deseja fazer, senhor(a) " + cliente.getNome() + "?");
         System.out.println("1. Sacar\n2. Depositar\n3. Transferir\n4. Sair");
@@ -59,49 +43,29 @@ public class App {
         while (opcao != 4) {
             switch (opcao) {
                 case 1:
-                    System.out.print("Digite o valor a sacar: ");
+                    System.out.println("Qual valor deseja sacar?");
                     double valorSaque = scanner.nextDouble();
-                    if (contaCorrente != null) {
-                        contaCorrente.sacar(valorSaque);
-                    } else if (contaPoupanca != null) {
-                        contaPoupanca.sacar(valorSaque);
-                    }
+                    conta.sacar(valorSaque);
+                    System.out.println("Saque realizado com sucesso! Saldo atual: " + conta.getSaldo());
                     break;
                 case 2:
-                    System.out.print("Digite o valor a depositar: ");
+                    System.out.println("Qual valor deseja depositar?");
                     double valorDeposito = scanner.nextDouble();
-                    if (contaCorrente != null) {
-                        contaCorrente.depositar(valorDeposito);
-                    } else if (contaPoupanca != null) {
-                        contaPoupanca.depositar(valorDeposito);
-                    }
+                    conta.depositar(valorDeposito);
+                    System.out.println("Depósito realizado com sucesso! Saldo atual: " + conta.getSaldo());
                     break;
                 case 3:
-                    System.out.print("Digite o valor a transferir: ");
+                    System.out.println("Qual valor deseja transferir?");
                     double valorTransferencia = scanner.nextDouble();
-                    System.out.print("Digite o ID da conta de destino: ");
+                    System.out.println("Para qual ID deseja transferir?");
                     int idDestino = scanner.nextInt();
-                    
-                    Conta contaDestino = null;
-                    
-                    if (contaCorrente != null && contaCorrente.getId() == idDestino) {
-                        contaDestino = contaCorrente;
-                    } else if (contaPoupanca != null && contaPoupanca.getId() == idDestino) {
-                        contaDestino = contaPoupanca;
-                    }
-
-                    if (contaDestino != null) {
-                        if (contaCorrente != null) {
-                            contaCorrente.transferir(contaDestino, valorTransferencia);
-                        } else if (contaPoupanca != null) {
-                            contaPoupanca.transferir(contaDestino, valorTransferencia);
-                        }
-                    } else {
-                        System.out.println("Conta de destino não encontrada.");
-                    }
+                    // Para simplificar, vamos criar uma nova conta de destino, também pode ser titularizada como uma conta "dummy".
+                    Conta contaDestino = new ContaCorrente(0, idDestino, "1234", 1000);
+                    conta.transferir(contaDestino, valorTransferencia);
+                    System.out.println("Transferência realizada com sucesso! Saldo atual: " + conta.getSaldo());
                     break;
                 default:
-                    System.out.println("Opção inválida.");
+                    System.out.println("Opção inválida. Tente novamente.");
             }
 
             System.out.println("O que deseja fazer, senhor(a) " + cliente.getNome() + "?");
