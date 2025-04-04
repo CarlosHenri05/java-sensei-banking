@@ -30,12 +30,11 @@ public class ContaPoupanca extends Conta {
         setSaldo(getSaldo() + valor);
     }
 
+    @Override
     public void transferir(Conta contaDestino, double valor) {
       if (valor <= getSaldo()) {
         sacar(valor);
         contaDestino.depositar(valor);
-      } else {
-        System.out.println("Saldo insuficiente.");
-      }
+      } else throw new IllegalArgumentException("Saldo insuficiente.");
     }
 }

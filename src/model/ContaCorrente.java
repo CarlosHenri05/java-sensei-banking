@@ -41,9 +41,7 @@ public class ContaCorrente extends Conta{
     if (valor <= getSaldo() + limite) {
       sacar(valor);
       contaDestino.depositar(valor);
-    } else {
-      System.out.println("Saldo insuficiente.");
-    }
+    } else throw new IllegalArgumentException("Saldo insuficiente.");
+ 
   }
-
 }
